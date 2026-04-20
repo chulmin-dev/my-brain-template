@@ -46,7 +46,7 @@ my-brain/
 | 레벨 | 무엇 | 언제 |
 |---|---|---|
 | L0 | `wiki/index.md` | 항상 — 세션 시작 시 자동 주입 |
-| L1 | 관련 project/deal/legal 페이지 | 현재 업무 맥락 파악 시 |
+| L1 | 관련 project/deal/legal 페이지 | 현재 업무 맥락 파악 시. **active 프로젝트는 session-start 훅에서 최근 3개 자동 pull (updated 순, ≤4K 토큰)** |
 | L2 | frontmatter만 grep | 검색/탐색 시 |
 | L3 | 특정 페이지 full read | 깊이 있는 작업 필요 시만 |
 
@@ -71,6 +71,15 @@ canonical_fields: [role, company, last_contact, status]  # C2 canonical source
 status: active | dormant | closed | archived
 summary: "한 줄 요약 (200자 이하)"
 ---
+```
+
+**Reading 섹션** — `people/` 페이지 본문에 추가 (V2 합의 2026-04-20):
+
+```markdown
+## 관찰 기록 (Reading)
+> [!mirror] canonical: 각 프로젝트 Stance Log의 해당 항목
+
+- "발언/행동 관찰 내용" (YYYY-MM-DD) → [[projects/관련프로젝트]] 참조
 ```
 
 ### companies/
@@ -140,6 +149,20 @@ summary: "한 줄 요약 (200자 이하)"
 ---
 ```
 
+**Stance Log** — `status: active` 프로젝트 페이지에 아래 섹션 추가 (V1 합의 2026-04-20):
+
+```markdown
+## 입장 변화 로그 (Stance Log)
+
+### YYYY-MM-DD | [입장 주제]
+**원래 입장**: [이전까지 믿었던 것]
+**도전받은 지점**: [무엇이 흔들었나 — 사람 발언/데이터/직관]
+**조정된 입장**: [지금 믿는 것]  ← claim (근거 명시)
+**읽은 신호**: [영향 준 인물·상황 단서]  ← inference 가능 (추론임을 명시)
+**아직 불확실한 것**: [다음 세션 검증 가설]
+ref: [[raw/sessions/파일명]]
+```
+
 ### decisions/
 ```yaml
 ---
@@ -150,6 +173,8 @@ date: YYYY-MM-DD
 status: confirmed | pending | revised | obsolete | archived
 source: [[raw/sessions/파일명]]
 supersedes: [[decisions/이전결정]]
+tension: true                       # optional — 미결 전략 긴장 마킹 (V3 합의 2026-04-20)
+revisit_trigger: "조건 또는 날짜"   # optional — 재검토 트리거
 canonical_fields: [status, supersedes]  # C2 canonical source
 summary: "한 줄 요약 (200자 이하)"
 ---
@@ -256,6 +281,10 @@ feedback_status: pending | received | incorporated
    - 언급된 회사 → companies/ 생성/업데이트
    - 법적 사안 진전 → legal/ 업데이트
    - 프로젝트 현황 변화 → projects/ 타임라인에 append
+   - [사업 대화 감지 — V4 합의 2026-04-20] people/·deals/·legal/ 언급이 다수이고 세션이 장시간(30턴+)인 경우:
+     → 사용자에게 확인: "이 세션에 입장 변화가 있었나요? Stance Log 기록할까요?"
+     → 확인 시: 해당 projects/ 페이지의 ## 입장 변화 로그 섹션에 append
+     → 인물 새 관찰 감지 시: 해당 people/ 페이지의 ## 관찰 기록 섹션에 append (inference 명시)
 4. 처리 완료한 세션 파일의 frontmatter를 compiled: true 로 수정
 5. INDEX-REFRESH 호출 (변경 페이지 ≤3개면 Tier-A, ≥4개면 Tier-B 자동 선택)
 6. wiki/log.md append:
