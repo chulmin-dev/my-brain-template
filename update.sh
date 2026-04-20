@@ -19,7 +19,6 @@ echo "-----------------------------"
 FILES=(
   "CLAUDE.md"
   ".hooks/session-start.py"
-  "update.sh"
 )
 
 updated=0
